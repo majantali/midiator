@@ -41,7 +41,10 @@ extract_track <- function(x)
     track <- x[8 + seq_len(track_len)]
     footer <- x[8 + track_len + (2:4)]
     if (toLength(footer) != 16723712)
+    {
+        print()
         stop("Unexpected footer: ", as.character(footer))
+    }
     list(header = header,
          track_len = track_len,
          track = structure(track, class = c("track", "midi")),

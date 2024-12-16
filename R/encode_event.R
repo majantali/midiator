@@ -29,12 +29,21 @@
                "PitchWheel" = 0xE0,
                "System" = 0xF0)
 
+encode_varlen_7bit <- function(value)
+{
+    ## 0x80 == 128 = 2^7
+    value <- as.integer(value)
+    if (value < 0x80) value
+    else c(encode_varlen_7bit(value %/% 0x80L),
+           value %% 0x80L)
+}
+
 encode_varlen <- function(value)
 {
-    ##
-    value <- as.integer(value)
-    if (value < 0x80) as.raw(value)
-    else stop("not implemented yet")
+    e <- encode_varlen_7bit(value)
+    n <- length(e)
+    if (n > 1) e[-n] <- e[-n] + 0x80L
+    as.raw(e)
 }
 
 
@@ -43,14 +52,17 @@ midi_event <- function(timestamp = 0L,
                                 "ControlChange", "ProgramChange",
                                 "ChannelPressure", "PitchWheel", "System"),
                        channel = 0L,
+                       status = as.raw(.type_map[[type]] + channel),
                        what = NA_integer,
                        value,
-                       prev.status = NULL)
+                       prev.status = 0L,
+                       include.status = (status == prev.status))
 {
     type <- match.arg(type)
+    if (type == "System") stop("Use sys_event() or meta_event() for System and Meta events")
     ans <-
         list(timestamp = encode_varlen(timestamp),
-             status = as.raw(.type_map[[type]] + channel),
+             status = status,
              data = switch(type,
                            NoteOff = ,
                            NoteOn = ,
@@ -61,11 +73,17 @@ midi_event <- function(timestamp = 0L,
                            ProgramChange = ,
                            ChannelPressure = {
                                as.raw(value)
+                           },
+                           PitchWheel = {
+                               as.raw(c(value %% 128L, value %/% 128L))
                            }))
-    if (!is.null(prev.status) && identical(ans$status, prev.status)) {
-        with(ans, c(timestamp, data)) # drop status if same as prev
-    }
-    else
+    if (include.status)
         with(ans, c(timestamp, status, data))
+    else
+        with(ans, c(timestamp, data))
 }
 
+
+sys_event <- function(...) raw(0)
+
+meta_event <- function(...) raw(0)

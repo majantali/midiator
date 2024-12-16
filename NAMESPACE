@@ -4,6 +4,10 @@ export(from_midi,
        extract_events,
        bits)
 
+export(midi_event, sys_event, meta_event)
+
+export(encode_midi)
+
 S3method(bits, raw)
 S3method(bits, integer)
 S3method(bits, numeric)

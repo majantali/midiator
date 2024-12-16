@@ -151,7 +151,7 @@ decode_event <- function(x, i, running_status = NULL)
         status$bytes <- 1L + (1L - use_running)
     }
     else if (status$desc == "PitchWheel") {
-        status$value <- as.integer(x[[i]]) + 0x80 * as.integer(x[[i+1]])
+        status$value <- as.integer(x[[i]]) + 0x80L * as.integer(x[[i+1]])
         status$bytes <- 2L + (1L - use_running)
     }
     else if (status$desc == "System") {
