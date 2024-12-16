@@ -1,0 +1,15 @@
+
+export(from_midi,
+       split_midi,
+       extract_events,
+       bits)
+
+S3method(bits, raw)
+S3method(bits, integer)
+S3method(bits, numeric)
+
+S3method(print, bits)
+S3method(print, midi)
+
+
+

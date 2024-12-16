@@ -57,10 +57,10 @@ decode_varlen <- function(x, i, maxlen = 4L)
 .status_map <- c(NA, NA, NA, NA, NA, NA, NA,
                  "NoteOff",           # 8
                  "NoteOn",            # 9
-                 "AfterTouch",        # A
+                 "PolyPressure",      # A (after-touch)
                  "ControlChange",     # B
                  "ProgramChange",     # C
-                 "ChannelPressure",   # D
+                 "ChannelPressure",   # D (after-touch)
                  "PitchWheel",        # E
                  "System")            # F
 
@@ -104,29 +104,28 @@ decode_event <- function(x, i, running_status = NULL)
     if (is.null(status)) stop("Invalid event data")
 
     ## placeholder values for when they are not applicable
-    status$key <- NA
+    status$what <- NA
     status$value <- NA
-    status$controller <- NA
     status$comment <- ""
     
     ## do the simple ones first
     if (status$desc == "NoteOff") {
-        status$key <- as.integer(x[[i]])
+        status$what <- as.integer(x[[i]])
         status$value <- as.integer(x[[i+1]])
         status$bytes <- 2L + (1L - use_running)
     }
     else if (status$desc == "NoteOn") {
-        status$key <- as.integer(x[[i]])
+        status$what <- as.integer(x[[i]])
         status$value <- as.integer(x[[i+1]])
         status$bytes <- 2L + (1L - use_running)
     }
-    else if (status$desc == "AfterTouch") {
-        status$key <- as.integer(x[[i]])
+    else if (status$desc == "PolyPressure") {
+        status$what <- as.integer(x[[i]])
         status$value <- as.integer(x[[i+1]])
         status$bytes <- 2L + (1L - use_running)
     }
     else if (status$desc == "ControlChange") {
-        status$controller <- as.integer(x[[i]])
+        status$what <- as.integer(x[[i]])
         status$value <- as.integer(x[[i+1]])
         status$bytes <- 2L + (1L - use_running)
         ## some controllers/values are special (channel mode):
@@ -212,10 +211,11 @@ decode_event <- function(x, i, running_status = NULL)
             ## This has further subtypes, but general format is
             ## FF <type> <length> <bytes>
 
-            status$type <- as.integer(x[[i]])
+            status$what <- as.integer(x[[i]]) # type
             vlen <- decode_varlen(x, i + 1)
+            status$value <- vlen[[1]] # not really usful, but just for info
             status$raw <- x[vlen[[2]] - 1L + seq_len(vlen[[1]])]
-            status$value <- rawToChar(status$raw, multiple = TRUE) |> paste(collapse = "")
+            status$text <- rawToChar(status$raw, multiple = TRUE) |> paste(collapse = "")
             status$bytes <- (1L - use_running) + vlen[[1]] + (vlen[[2]] - i)
         }
         else stop("Encountered undefined system message with channel = ", status$channel)
