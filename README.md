@@ -13,6 +13,8 @@ References:
 
 * <https://midimusic.github.io/tech/midispec.html> (more technical)
 
+* <https://web.archive.org/web/20070707201654/http://jedi.ks.uiuc.edu/~johns/links/music/midifile.htm> (intermediate, and useful)
+
 ## Current status
 
 In planning stage.
