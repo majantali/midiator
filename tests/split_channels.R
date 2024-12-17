@@ -14,7 +14,7 @@ x <- from_midi(midifile) |> split_midi()
 
 str(x) ## single track with multiple channels
 
-e <- midiator:::extract_events(x$tracks[[1]]$track)
+e <- extract_events(x$tracks[[1]]$track)
 
 d <- sapply(c("status", "desc", "channel", "what", "value", "timestamp"),
             function(s) sapply(e, getElement, s),

@@ -1,13 +1,13 @@
 
-from_midi <- function(file = "sample.mid")
+from_midi <- function(file)
 {
     n <- file.size(file)
     x <- readBin(file, what = "raw", n = n + 2)
     stopifnot(n == length(x))
-    structure(x, class = "midi")
+    structure(x, class = "rawmidi")
 }
 
-print.midi <- function(x, ...)
+print.rawmidi <- function(x, ...)
 {
     cbind(bits = bits(as.vector(x)),
           hex = sprintf("%02x", as.integer(x)),
@@ -65,7 +65,7 @@ split_midi <- function(x)
     ntracks <- head(x, 2) |> toLength(); x <- tail(x, -2)
     speed <- head(x, 2) |> toLength(); x <- tail(x, -2)
     ## FIXME: there can be a different interpretation speed if the
-    ## first byte is negative, which e do not consider here.
+    ## first byte is negative, which we do not consider here.
     tracks <- vector(mode = "list", length = ntracks)
     for (i in seq_len(ntracks))
     {
@@ -74,11 +74,13 @@ split_midi <- function(x)
     }
     if (length(x) > 0) stop("Unexpected residual content in x")
 
-    list(headerA = headerA, headerB = headerB,
-         type = type, ntracks = ntracks, speed = speed,
-         tracks = tracks)
+    list(headerA = headerA,
+         headerB = headerB,
+         type = type,
+         ntracks = ntracks,
+         speed = speed,
+         tracks = tracks) |> structure(class = "midi")
 }
-
 
 
 extract_events <- function(track)

@@ -1,19 +1,34 @@
 
-export(from_midi,
-       split_midi,
-       extract_events,
-       bits)
+## midi import / export
 
-export(midi_event, sys_event, meta_event)
+export(bits,           # utility for displaying raw vectors
+       from_midi,      # read MIDI file into raw vector (just readBin)
+       split_midi,     # split raw MIDI into list of tracks + metadata
+       encode_midi)    # encode list of raw tracks into MIDI file
 
-export(encode_midi)
+## event processing
+
+export(extract_events, # convert raw track to list of events
+       midi_event,     # generate raw midi event from timestamp / type / etc
+       sys_event,      # system events (not implemented)
+       meta_event)     # meta events (not implemented)
+
+
+
+## utilities
+
+export(key,                # key codes
+       key_indian,         # key codes from Indian music notation sRrGgmMpDdNn
+       controller_code,    # selected controls
+       program_code)       # program (insrument codes)
+
 
 S3method(bits, raw)
 S3method(bits, integer)
 S3method(bits, numeric)
 
 S3method(print, bits)
-S3method(print, midi)
+S3method(print, rawmidi)
 
-
+## TODO: Add length.midi, [.midi etc to extract tracks
 
